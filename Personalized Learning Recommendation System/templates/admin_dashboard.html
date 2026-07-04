@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Administrator Panel - learning.ai</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-screwdriver-wrench" style="color: var(--warning);"></i> learning.admin
+            </div>
+            <div class="nav-menu">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">Administrator Portal</span>
+                <a href="/api/auth/logout" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 1.5rem;">
+        
+        <!-- Welcome Header -->
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2.2rem; margin-bottom: 0.25rem;">Administrator Control Panel</h1>
+            <p style="color: var(--text-muted);">Manage platform databases, review audit logs, and oversee student records.</p>
+        </div>
+
+        <!-- Global Activity Cards -->
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Total Students</div>
+                    <div class="metric-val" id="adminTotalStudents">0</div>
+                </div>
+                <div class="metric-icon" style="color: var(--primary);"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Assessments Taken</div>
+                    <div class="metric-val" id="adminTotalQuizzes">0</div>
+                </div>
+                <div class="metric-icon" style="color: var(--success);"><i class="fa-solid fa-clipboard-question"></i></div>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Platform Logs</div>
+                    <div class="metric-val" id="adminTotalLogs" style="color: var(--warning);">0</div>
+                </div>
+                <div class="metric-icon" style="color: var(--warning);"><i class="fa-solid fa-terminal"></i></div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <!-- LEFT: Registered Users Management -->
+            <div class="col-8">
+                
+                <div class="glass-card" style="margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-users-gear" style="color: var(--primary); margin-right: 0.5rem;"></i> Student Directory & Assessment State</h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Delete student profiles or reset assessment scores to let them re-take the initial exam.</p>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Institution</th>
+                                    <th>CGPA</th>
+                                    <th>Score</th>
+                                    <th>Level</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Database Diagnostics Connection Details -->
+                <div class="glass-card">
+                    <h3><i class="fa-solid fa-database" style="color: var(--accent); margin-right: 0.5rem;"></i> Connection Diagnostic Status</h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Active database engine indicators and record allocation sizes.</p>
+                    
+                    <div class="diag-grid">
+                        <div class="diag-info">
+                            <div class="diag-row">
+                                <span class="diag-label">Active DB Engine</span>
+                                <span class="diag-val" id="diagActiveDb" style="font-weight: 600; color: var(--accent);">sqlite</span>
+                            </div>
+                            <div class="diag-row">
+                                <span class="diag-label">Connection Status</span>
+                                <span class="diag-val" id="diagStatus" style="font-weight: 600; color: var(--success);">Connected</span>
+                            </div>
+                            <div class="diag-row">
+                                <span class="diag-label">Logs Severs</span>
+                                <span class="diag-val" id="diagLogsSize">0 records</span>
+                            </div>
+                        </div>
+                        <div class="diag-info">
+                            <div class="diag-row">
+                                <span class="diag-label">User Schema Allocation</span>
+                                <span class="diag-val" id="diagUsersSize">0 rows</span>
+                            </div>
+                            <div class="diag-row">
+                                <span class="diag-label">Quiz Table Size</span>
+                                <span class="diag-val" id="diagQuizzesSize">0 records</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 6px; font-size: 0.85rem; font-family: monospace;" id="diagDetails">
+                        Status Log: Engine running smoothly.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Logs Streams & Level Spread charts -->
+            <div class="col-4">
+                
+                <!-- Level Distribution Pie Chart -->
+                <div class="glass-card" style="margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-chart-pie" style="color: var(--secondary); margin-right: 0.5rem;"></i> Student Levels Spread</h3>
+                    <div style="position: relative; height: 200px; width: 100%; margin-top: 1rem;">
+                        <canvas id="levelPieChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- System Logs Viewer -->
+                <div class="glass-card">
+                    <h3><i class="fa-solid fa-terminal" style="color: var(--warning); margin-right: 0.5rem;"></i> Live System Audit Logs</h3>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Tracks registrations, login logs, quiz calculations, and administrative actions.</p>
+                    <div class="log-stream-box" id="logStreamBox">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        let pieChart = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchAdminStats();
+            // Refresh logs every 30 seconds
+            setInterval(fetchAdminStats, 30000);
+        });
+
+        async function fetchAdminStats() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const data = await response.json();
+                
+                if(!data.success) {
+                    alert("Failed to load admin stats: " + data.message);
+                    return;
+                }
+
+                // Global Stats
+                document.getElementById('adminTotalStudents').innerText = data.metrics.total_students;
+                document.getElementById('adminTotalQuizzes').innerText = data.metrics.total_quizzes;
+                document.getElementById('adminTotalLogs').innerText = data.db_diagnostics.log_count;
+
+                // Diagnostics
+                document.getElementById('diagActiveDb').innerText = data.db_diagnostics.active_db.toUpperCase();
+                document.getElementById('diagStatus').innerText = data.db_diagnostics.status;
+                document.getElementById('diagLogsSize').innerText = `${data.db_diagnostics.log_count} records`;
+                document.getElementById('diagUsersSize').innerText = `${data.db_diagnostics.user_table_size} rows`;
+                document.getElementById('diagQuizzesSize').innerText = `${data.db_diagnostics.quiz_table_size} rows`;
+                document.getElementById('diagDetails').innerText = `Diagnostic status: ${data.db_diagnostics.details}`;
+
+                if(data.db_diagnostics.status.includes("Fallback")) {
+                    document.getElementById('diagStatus').style.color = 'var(--warning)';
+                } else {
+                    document.getElementById('diagStatus').style.color = 'var(--success)';
+                }
+
+                // Student Directory Table
+                const tbody = document.getElementById('studentTableBody');
+                tbody.innerHTML = '';
+                if(data.students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No student accounts registered yet.</td></tr>';
+                } else {
+                    data.students.forEach(s => {
+                        const tr = document.createElement('tr');
+                        const scoreVal = s.quiz_score !== null ? `${Math.round(s.quiz_score)}%` : '<span style="color:var(--text-muted)">Unassessed</span>';
+                        
+                        let levelClass = 'badge-level';
+                        if(s.level === 'Beginner') levelClass = 'badge-needs-review';
+                        if(s.level === 'Advanced') levelClass = 'badge-proficient';
+                        
+                        const levelVal = s.quiz_score !== null ? `<span class="badge ${levelClass}">${s.level}</span>` : `<span style="color:var(--text-muted)">N/A</span>`;
+
+                        tr.innerHTML = `
+                            <td><strong style="color:white;">${s.name}</strong></td>
+                            <td style="font-size:0.8rem; color:var(--text-muted);">${s.email}</td>
+                            <td>${s.college}</td>
+                            <td>${s.cgpa}</td>
+                            <td>${scoreVal}</td>
+                            <td>${levelVal}</td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; margin-right:0.25rem;" onclick="resetQuiz(${s.id})" ${s.quiz_score===null?'disabled':''}>
+                                    <i class="fa-solid fa-rotate-right"></i> Reset Test
+                                </button>
+                                <button class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="deleteUser(${s.id})">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // System Logs Stream
+                const logBox = document.getElementById('logStreamBox');
+                logBox.innerHTML = '';
+                if(data.logs.length === 0) {
+                    logBox.innerHTML = '<div style="color:var(--text-muted);">No platform logs captured yet.</div>';
+                } else {
+                    data.logs.forEach(l => {
+                        const line = document.createElement('div');
+                        line.className = 'log-line';
+                        line.innerHTML = `
+                            <span class="log-time">[${l.timestamp}]</span>
+                            <span class="log-cat cat-${l.category}">${l.category}</span>
+                            <span style="color:#d1d5db;">${l.action}: ${l.details}</span>
+                        `;
+                        logBox.appendChild(line);
+                    });
+                }
+
+                // Render Levels Pie Chart
+                renderLevelsPieChart(data.metrics.levels);
+
+            } catch(e) {
+                console.error("Admin dashboard fetch stats error: ", e);
+            }
+        }
+
+        function renderLevelsPieChart(levels) {
+            const ctx = document.getElementById('levelPieChart').getContext('2d');
+            
+            if(pieChart) pieChart.destroy();
+
+            const values = [levels.Beginner, levels.Intermediate, levels.Advanced];
+            
+            if(values[0] === 0 && values[1] === 0 && values[2] === 0) {
+                // Draw a mock layout if no data
+                pieChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['No Data Available'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['rgba(255,255,255,0.05)'],
+                            borderColor: ['rgba(255,255,255,0.08)']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                return;
+            }
+
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Beginner', 'Intermediate', 'Advanced'],
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(79, 70, 229, 0.7)',
+                            'rgba(16, 185, 129, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(79, 70, 229, 1)',
+                            'rgba(16, 185, 129, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white', font: { size: 10 } },
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        async function resetQuiz(userId) {
+            const confirmAction = confirm("Are you sure you want to reset this student's assessment quiz? This deletes their previous score, recommendations, and unlocks their assessment page again.");
+            if(!confirmAction) return;
+
+            try {
+                const response = await fetch('/api/admin/users/reset', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    alert(data.message);
+                    fetchAdminStats();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch(e) {
+                alert("Network error executing reset action.");
+            }
+        }
+
+        async function deleteUser(userId) {
+            const confirmAction = confirm("WARNING: Are you sure you want to permanently delete this student's account? This operation deletes their academic details, preferences, score logs, and cannot be undone!");
+            if(!confirmAction) return;
+
+            try {
+                const response = await fetch('/api/admin/users/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    alert(data.message);
+                    fetchAdminStats();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch(e) {
+                alert("Network error executing delete action.");
+            }
+        }
+    </script>
+</body>
+</html>

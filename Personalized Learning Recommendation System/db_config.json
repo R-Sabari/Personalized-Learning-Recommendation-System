@@ -1,0 +1,10 @@
+{
+  "DB_TYPE": "sqlite",
+  "DB_HOST": "localhost",
+  "DB_PORT": 3306,
+  "DB_USER": "root",
+  "DB_PASSWORD": "yourpasswordhere",
+  "DB_NAME": "personalized_learning",
+  "ADMIN_EMAIL": "admin@learning.com",
+  "ADMIN_PASSWORD": "admin123"
+}

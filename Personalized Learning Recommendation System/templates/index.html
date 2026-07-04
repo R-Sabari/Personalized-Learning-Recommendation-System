@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Learning Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <!-- Sidebar Branding -->
+        <div class="auth-sidebar">
+            <h1>Personalized<br>Learning<br>Advisor.</h1>
+            <p>Accelerate your academic and career trajectory with dynamic AI profiling, skill assessment quizzes, and personalized learning pathways tailored precisely to your speed and interests.</p>
+        </div>
+
+        <!-- Forms Container -->
+        <div class="auth-form-container">
+            
+            <!-- LOGIN CARD -->
+            <div class="glass-card auth-form-box" id="loginCard">
+                <h2 style="margin-bottom: 0.25rem;">Welcome Back</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Log in to access your analytics dashboard.</p>
+                
+                <div id="loginError" style="color: var(--danger); background: rgba(239,68,68,0.1); border: 1px dashed var(--danger); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; display: none; font-size: 0.85rem;"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group password-field">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required>
+                        <i class="fa-solid fa-eye password-toggle" id="toggleLoginPwd" onclick="togglePassword('loginPassword','toggleLoginPwd')"></i>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        Log In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </button>
+                </form>
+
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                    Don't have an account? <a href="#" id="showRegister" style="color: var(--accent); text-decoration: none; font-weight: 600;">Create account</a>
+                </p>
+            </div>
+
+            <!-- REGISTRATION CARD -->
+            <div class="glass-card auth-form-box" id="registerCard" style="display: none;">
+                <h2 style="margin-bottom: 0.25rem;">Create Account</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Fill in details to personalize your path.</p>
+
+                <!-- Progress indicators -->
+                <div class="step-indicator">
+                    <div class="step-dot active" id="dot1">1</div>
+                    <div class="step-dot" id="dot2">2</div>
+                    <div class="step-dot" id="dot3">3</div>
+                    <div class="step-dot" id="dot4">4</div>
+                </div>
+
+                <div id="registerError" style="color: var(--danger); background: rgba(239,68,68,0.1); border: 1px dashed var(--danger); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; display: none; font-size: 0.85rem;"></div>
+
+                <form id="registerForm">
+                    
+                    <!-- STEP 1: Basic Details -->
+                    <div class="form-step active" id="step1">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; color: var(--accent);">Step 1: Basic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regFirstName">First Name</label>
+                                <input type="text" class="form-control" id="regFirstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regLastName">Last Name</label>
+                                <input type="text" class="form-control" id="regLastName" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email Address</label>
+                            <input type="email" class="form-control" id="regEmail" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regPhone">Phone Number</label>
+                                <input type="tel" class="form-control" id="regPhone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regAge">Age</label>
+                                <input type="number" class="form-control" id="regAge" min="10" max="100" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regGender">Gender</label>
+                                <select class="form-control" id="regGender" required>
+                                    <option value="" disabled selected>Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="regCollege">School/College Name</label>
+                                <input type="text" class="form-control" id="regCollege" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regPassword">Password</label>
+                                <input type="password" class="form-control" id="regPassword" required placeholder="Min 6 chars">
+                            </div>
+                            <div class="form-group">
+                                <label for="regConfirmPassword">Confirm Password</label>
+                                <input type="password" class="form-control" id="regConfirmPassword" required>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                            <button type="button" class="btn btn-primary" onclick="nextStep(1)">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Academic Info -->
+                    <div class="form-step" id="step2">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; color: var(--accent);">Step 2: Academic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regDept">Department</label>
+                                <input type="text" class="form-control" id="regDept" placeholder="e.g. Computer Science" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regCourse">Course</label>
+                                <input type="text" class="form-control" id="regCourse" placeholder="e.g. B.Tech / B.E." required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regYear">Year</label>
+                                <select class="form-control" id="regYear" required>
+                                    <option value="1st">1st Year</option>
+                                    <option value="2nd">2nd Year</option>
+                                    <option value="3rd">3rd Year</option>
+                                    <option value="4th">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="regSem">Semester</label>
+                                <select class="form-control" id="regSem" required>
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                    <option value="5">Semester 5</option>
+                                    <option value="6">Semester 6</option>
+                                    <option value="7">Semester 7</option>
+                                    <option value="8">Semester 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="regCGPA">Current CGPA</label>
+                                <input type="number" step="0.01" min="0" max="10" class="form-control" id="regCGPA" placeholder="0.00" required>
+                            </div>
+                        </div>
+
+                        <!-- Preferred languages select grid -->
+                        <div class="form-group">
+                            <label>Preferred Programming Languages (Select all that apply)</label>
+                            <div class="check-grid" id="languageGrid">
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="java"> Java
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="python"> Python
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="c"> C
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="c++"> C++
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="Data Structures"> Data Structs
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="AI"> AI
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="languages" value="Web Development"> Web Dev
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Learning Preferences -->
+                    <div class="form-step" id="step3">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; color: var(--accent);">Step 3: Learning Preferences</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regSpeed">Learning Speed</label>
+                                <select class="form-control" id="regSpeed" required>
+                                    <option value="Slow">Slow (Detailed pacing)</option>
+                                    <option value="Medium" selected>Medium (Standard pace)</option>
+                                    <option value="Fast">Fast (Accelerated pace)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="regHours">Daily Study Hours</label>
+                                <input type="number" step="0.5" min="0.5" max="24" class="form-control" id="regHours" value="2.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regDiff">Preferred Difficulty</label>
+                                <select class="form-control" id="regDiff" required>
+                                    <option value="Beginner" selected>Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Preferred learning methods -->
+                        <div class="form-group">
+                            <label>Preferred Learning Methods (Select all that apply)</label>
+                            <div class="check-grid" id="methodGrid">
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="methods" value="Video"> Videos
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="methods" value="PDF Notes"> PDF Notes
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="methods" value="Practice Problems"> Coding Tasks
+                                </div>
+                                <div class="check-card" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="methods" value="Interactive Quizzes"> Quizzes
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(3)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(3)">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Skill Ratings & Career -->
+                    <div class="form-step" id="step4">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; color: var(--accent);">Step 4: Skill Assessment & Goals</h3>
+                        
+                        <div class="form-group">
+                            <label>Rate your skills (1 to 5 Stars)</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px;">
+                                <div>
+                                    <label style="margin-bottom: 0.25rem;">Programming</label>
+                                    <select class="form-control" id="regSkillProg">
+                                        <option value="1">⭐ (Novice)</option>
+                                        <option value="2">⭐⭐</option>
+                                        <option value="3" selected>⭐⭐⭐</option>
+                                        <option value="4">⭐⭐⭐⭐</option>
+                                        <option value="5">⭐⭐⭐⭐⭐ (Expert)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="margin-bottom: 0.25rem;">Aptitude</label>
+                                    <select class="form-control" id="regSkillApt">
+                                        <option value="1">⭐ (Novice)</option>
+                                        <option value="2">⭐⭐</option>
+                                        <option value="3" selected>⭐⭐⭐</option>
+                                        <option value="4">⭐⭐⭐⭐</option>
+                                        <option value="5">⭐⭐⭐⭐⭐ (Expert)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="margin-bottom: 0.25rem;">Mathematics</label>
+                                    <select class="form-control" id="regSkillMath">
+                                        <option value="1">⭐ (Novice)</option>
+                                        <option value="2">⭐⭐</option>
+                                        <option value="3" selected>⭐⭐⭐</option>
+                                        <option value="4">⭐⭐⭐⭐</option>
+                                        <option value="5">⭐⭐⭐⭐⭐ (Expert)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="margin-bottom: 0.25rem;">Communication</label>
+                                    <select class="form-control" id="regSkillComm">
+                                        <option value="1">⭐ (Novice)</option>
+                                        <option value="2">⭐⭐</option>
+                                        <option value="3" selected>⭐⭐⭐</option>
+                                        <option value="4">⭐⭐⭐⭐</option>
+                                        <option value="5">⭐⭐⭐⭐⭐ (Expert)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Career Interests -->
+                        <div class="form-group">
+                            <label>Target Career Interest (Select primary)</label>
+                            <div class="check-grid" id="careerGrid">
+                                <div class="check-card selected" onclick="selectSingleCareer(this)">
+                                    <input type="radio" name="career" value="Software Developer" checked> Software Dev
+                                </div>
+                                <div class="check-card" onclick="selectSingleCareer(this)">
+                                    <input type="radio" name="career" value="AI Engineer"> AI Engineer
+                                </div>
+                                <div class="check-card" onclick="selectSingleCareer(this)">
+                                    <input type="radio" name="career" value="Data Scientist"> Data Scientist
+                                </div>
+                                <div class="check-card" onclick="selectSingleCareer(this)">
+                                    <input type="radio" name="career" value="Cybersecurity"> Cybersecurity
+                                </div>
+                                <div class="check-card" onclick="selectSingleCareer(this)">
+                                    <input type="radio" name="career" value="Web Developer"> Web Developer
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(4)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                            <button type="submit" class="btn btn-primary">Complete Registration <i class="fa-solid fa-user-check"></i></button>
+                        </div>
+                    </div>
+
+                </form>
+
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                    Already have an account? <a href="#" id="showLogin" style="color: var(--accent); text-decoration: none; font-weight: 600;">Log In</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        const loginCard = document.getElementById('loginCard');
+        const registerCard = document.getElementById('registerCard');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+
+        // Toggle cards
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginCard.style.display = 'none';
+            registerCard.style.display = 'block';
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerCard.style.display = 'none';
+            loginCard.style.display = 'block';
+        });
+
+        // Toggle checkbox cards visual styling
+        function toggleCheckbox(card) {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            if(checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+
+        // Handle single selection career radio buttons
+        function selectSingleCareer(card) {
+            const grid = document.getElementById('careerGrid');
+            grid.querySelectorAll('.check-card').forEach(c => c.classList.remove('selected'));
+            grid.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+
+            const radio = card.querySelector('input[type="radio"]');
+            radio.checked = true;
+            card.classList.add('selected');
+        }
+
+        // Multi-step Registration logic
+        function nextStep(currentStep) {
+            // Validation before proceeding
+            let valid = true;
+            const container = document.getElementById(`step${currentStep}`);
+            const inputs = container.querySelectorAll('input[required], select[required]');
+            
+            inputs.forEach(input => {
+                if(!input.value) {
+                    input.style.borderColor = 'var(--danger)';
+                    valid = false;
+                } else {
+                    input.style.borderColor = 'var(--border-color)';
+                }
+            });
+
+            // Password matching validation on step 1
+            if(currentStep === 1) {
+                const password = document.getElementById('regPassword').value;
+                const confirm = document.getElementById('regConfirmPassword').value;
+                if(password.length < 6) {
+                    document.getElementById('regPassword').style.borderColor = 'var(--danger)';
+                    alert("Password must be at least 6 characters.");
+                    valid = false;
+                }
+                if(password !== confirm) {
+                    document.getElementById('regConfirmPassword').style.borderColor = 'var(--danger)';
+                    alert("Passwords do not match!");
+                    valid = false;
+                }
+            }
+
+            if(!valid) return;
+
+            // Hide current, show next
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep + 1}`).classList.add('active');
+
+            // Update dots
+            document.getElementById(`dot${currentStep}`).classList.remove('active');
+            document.getElementById(`dot${currentStep}`).classList.add('completed');
+            document.getElementById(`dot${currentStep + 1}`).classList.add('active');
+        }
+
+        function prevStep(currentStep) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep - 1}`).classList.add('active');
+
+            // Update dots
+            document.getElementById(`dot${currentStep}`).classList.remove('active');
+            document.getElementById(`dot${currentStep - 1}`).classList.remove('completed');
+            document.getElementById(`dot${currentStep - 1}`).classList.add('active');
+        }
+
+                // Toggle password visibility
+        function togglePassword(inputId, eyeId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.classList.remove('fa-eye');
+                eye.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eye.classList.remove('fa-eye-slash');
+                eye.classList.add('fa-eye');
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.style.display = 'none';
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                const data = await response.json();
+                if(data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    errorDiv.innerText = data.message;
+                    errorDiv.style.display = 'block';
+                }
+            } catch(err) {
+                errorDiv.innerText = "Connection failed. Please verify python server is running.";
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // Handle Registration Submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('registerError');
+            errorDiv.style.display = 'none';
+
+            // Gather languages
+            const preferred_languages = [];
+            document.querySelectorAll('input[name="languages"]:checked').forEach(cb => {
+                preferred_languages.push(cb.value);
+            });
+
+            // Gather methods
+            const preferred_method = [];
+            document.querySelectorAll('input[name="methods"]:checked').forEach(cb => {
+                preferred_method.push(cb.value);
+            });
+
+            // Gather career selection
+            const career_interests = [];
+            const checkedCareer = document.querySelector('input[name="career"]:checked');
+            if(checkedCareer) {
+                career_interests.push(checkedCareer.value);
+            }
+
+            const payload = {
+                first_name: document.getElementById('regFirstName').value,
+                last_name: document.getElementById('regLastName').value,
+                email: document.getElementById('regEmail').value,
+                phone: document.getElementById('regPhone').value,
+                age: document.getElementById('regAge').value,
+                gender: document.getElementById('regGender').value,
+                college_name: document.getElementById('regCollege').value,
+                password: document.getElementById('regPassword').value,
+                confirm_password: document.getElementById('regConfirmPassword').value,
+                
+                department: document.getElementById('regDept').value,
+                course: document.getElementById('regCourse').value,
+                year: document.getElementById('regYear').value,
+                semester: document.getElementById('regSem').value,
+                current_cgpa: document.getElementById('regCGPA').value,
+                preferred_languages: preferred_languages,
+                
+                learning_speed: document.getElementById('regSpeed').value,
+                daily_study_hours: document.getElementById('regHours').value,
+                difficulty_level: document.getElementById('regDiff').value,
+                preferred_method: preferred_method,
+                
+                skill_programming: document.getElementById('regSkillProg').value,
+                skill_aptitude: document.getElementById('regSkillApt').value,
+                skill_math: document.getElementById('regSkillMath').value,
+                skill_communication: document.getElementById('regSkillComm').value,
+                career_interests: career_interests
+            };
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if(data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    errorDiv.innerText = data.message;
+                    errorDiv.style.display = 'block';
+                }
+            } catch(err) {
+                errorDiv.innerText = "Registration connection error.";
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Analytics Dashboard - learning.ai</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> learning.ai
+            </div>
+            <div class="nav-menu">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">Welcome, <span id="studentNavName" style="color: white; font-weight: 600;">Student</span></span>
+                <a href="/api/auth/logout" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container" style="margin-top: 1.5rem;">
+        
+        <!-- Welcome Header Banner -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;" class="no-print">
+            <div>
+                <h1 style="font-size: 2.2rem; margin-bottom: 0.25rem;">Student Analysis Dashboard</h1>
+                <p style="color: var(--text-muted);">Real-time learning behavior, AI analysis, and curated roadmaps.</p>
+            </div>
+            <div>
+                <button onclick="window.print()" class="btn btn-secondary">
+                    <i class="fa-solid fa-print"></i> Export Roadmap & Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Print-only Report Header -->
+        <div style="display:none; text-align: center; border-bottom: 3px double #333; padding-bottom: 1.5rem; margin-bottom: 2rem;" class="print-only">
+            <h1 style="font-size: 2.5rem; color: black; margin-bottom: 0.25rem;">LEARNING.AI ROADMAP REPORT</h1>
+            <p>Generated for: <span id="printStudentName" style="font-weight:bold;">Student</span> | Institution: <span id="printCollege">College</span></p>
+            <p>Date: <span id="printDate">2026-05-28</span> | Career Focus: <span id="printCareer" style="font-weight:bold;">Software Developer</span></p>
+        </div>
+
+        <!-- Dashboard Metrics Row -->
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Assessment Level</div>
+                    <div class="metric-val" id="levelBadge" style="color: var(--accent);">Intermediate</div>
+                </div>
+                <div class="metric-icon" style="color: var(--accent);"><i class="fa-solid fa-gauge-high"></i></div>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Quiz Score</div>
+                    <div class="metric-val" id="quizScoreText" style="color: var(--success);">75%</div>
+                </div>
+                <div class="metric-icon" style="color: var(--success);"><i class="fa-solid fa-award"></i></div>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Projected CGPA</div>
+                    <div class="metric-val" id="gpaProjected" style="color: var(--warning);">8.42</div>
+                </div>
+                <div class="metric-label" style="font-size: 0.75rem; margin-top: 0.5rem;" id="gpaCurrent">Current: 7.9</div>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-label">Weekly Study Hours</div>
+                    <div class="metric-val" id="studyHoursText">14 hrs</div>
+                </div>
+                <div class="metric-icon" style="color: var(--primary);"><i class="fa-solid fa-book-open"></i></div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <!-- LEFT: Charts and AI Profiling -->
+            <div class="col-8">
+                
+                <!-- Skill Radar Analysis -->
+                <div class="glass-card" style="margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-brain" style="color: var(--primary); margin-right: 0.5rem;"></i> Cognitive & Skill Assessment</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Comparing your self-assessment ratings (1-5 scaled) with actual assessment quiz topics.</p>
+                    <div style="position: relative; height: 320px; width: 100%;">
+                        <canvas id="skillRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weak Areas Detection & Remediation -->
+                <div class="glass-card" style="margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger); margin-right: 0.5rem;"></i> Concept Analysis & Weak Areas</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Topics where the AI engine detected low accuracy or slower response speeds.</p>
+                    
+                    <div id="weakAreaList" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <!-- Badges added dynamically -->
+                    </div>
+
+                    <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); padding: 1rem; border-radius: 4px; font-size: 0.9rem;">
+                        <strong>AI Remediation Insight:</strong> We have mapped easier, basic concepts to your weak areas and advanced content to your strong zones. Follow your recommended courses below to cover gaps.
+                    </div>
+                </div>
+
+                <!-- Learning Behavior Timeline -->
+                <div class="glass-card" style="margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-chart-line" style="color: var(--accent); margin-right: 0.5rem;"></i> Learning Behavior & Activity</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Tracks study time accumulated per topic (combines Pomodoro tracker and quiz logins).</p>
+                    <div style="position: relative; height: 260px; width: 100%;">
+                        <canvas id="behaviorBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- AI Analysis Summary -->
+                <div class="glass-card">
+                    <h3><i class="fa-solid fa-microchip" style="color: var(--secondary); margin-right: 0.5rem;"></i> Deep AI Learning Evaluation</h3>
+                    <div id="aiSummaryContent" style="font-size: 0.95rem; line-height: 1.6; color: rgba(255,255,255,0.9);">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Pomodoro & Info Cards -->
+            <div class="col-4 no-print">
+                
+                <!-- Profile / Goals Card -->
+                <div class="glass-card" style="margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-circle-user" style="color: var(--accent); margin-right: 0.5rem;"></i> Academic Profile</h3>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.35rem;">
+                            <span style="color: var(--text-muted);">Course:</span>
+                            <span id="studentCourse" style="font-weight: 600;">B.Tech</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.35rem;">
+                            <span style="color: var(--text-muted);">Department:</span>
+                            <span id="studentDept" style="font-weight: 600;">Computer Science</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.35rem;">
+                            <span style="color: var(--text-muted);">Career Interest:</span>
+                            <span id="studentCareer" style="font-weight: 600; color: var(--accent);">AI Engineer</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.35rem;">
+                            <span style="color: var(--text-muted);">Study Pace:</span>
+                            <span id="studentPace" style="font-weight: 600;">Medium</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Pomodoro Study Stopwatch -->
+                <div class="glass-card pomodoro-box" style="margin-bottom: 1.5rem; border-color: rgba(79, 70, 229, 0.25);">
+                    <h3 style="text-align: left; margin-bottom: 0.25rem;"><i class="fa-solid fa-clock" style="color: var(--primary); margin-right: 0.5rem;"></i> Study Session Tracker</h3>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; text-align: left; margin-bottom: 1rem;">Track active minutes. Pausing will save time spent to your learning behavior log.</p>
+                    
+                    <select class="pomo-topic-select" id="pomoTopic">
+                        <option value="Java basics">Java basics</option>
+                        <option value="Loops">Loops</option>
+                        <option value="Arrays">Arrays</option>
+                        <option value="OOP concepts">OOP concepts</option>
+                        <option value="Quantitative Aptitude">Quantitative Aptitude</option>
+                        <option value="Logical reasoning">Logical reasoning</option>
+                    </select>
+
+                    <div class="pomo-time" id="stopwatchDisplay">00:00</div>
+                    
+                    <div class="pomo-controls">
+                        <button class="btn btn-primary" id="stopwatchBtn" onclick="toggleStopwatch()">
+                            <i class="fa-solid fa-play"></i> Start Study
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetStopwatch()" style="padding: 0.75rem 1rem;">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Revision Reminders Widget -->
+                <div class="glass-card">
+                    <h3><i class="fa-solid fa-bell" style="color: var(--warning); margin-right: 0.5rem;"></i> Smart Revision Reminders</h3>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;" id="revisionList">
+                        <!-- Loaded dynamically based on weak areas -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="dashboard-grid" style="margin-top: 2rem;">
+            <div class="col-12">
+                <div class="glass-card">
+                    <h2><i class="fa-solid fa-compass" style="color: var(--primary); margin-right: 0.5rem;"></i> Personalized Learning Roadmap</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Course materials selected for you based on current topic proficiency levels.</p>
+
+                    <div class="recs-grid" id="recommendationCards">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Floating Chatbot Widget Toggle -->
+    <div class="ai-chat-toggle no-print" onclick="toggleChatWindow()">
+        <i class="fa-solid fa-comment-dots"></i>
+    </div>
+
+    <!-- Chatbot Window -->
+    <div class="glass-card ai-chatbot-widget no-print" id="chatbotWidget">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <i class="fa-solid fa-robot" style="color: var(--accent);"></i> AI Study Assistant
+            </div>
+            <div class="chatbot-close" onclick="toggleChatWindow()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chatbotMsgs">
+            <div class="chat-msg chat-msg-ai">
+                Hi! I am your personalized AI tutor. I know your learning goals and weak areas. Ask me anything, e.g., <strong>"Explain recursion in Java"</strong> or <strong>"How do SQL joins work?"</strong>.
+            </div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ask a study question..." onkeypress="handleChatEnter(event)">
+            <button class="chatbot-send" onclick="sendChatMsg()">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        let radarChart = null;
+        let barChart = null;
+
+        // Stopwatch variables
+        let stopwatchInterval = null;
+        let elapsedSeconds = 0;
+        let stopwatchRunning = false;
+
+        // Load data on load
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchStats();
+            
+            // Set print header date
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+        });
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+                
+                if(data.success === false || data.quiz_taken === false) {
+                    // Redirect to assessment if quiz not taken
+                    window.location.href = '/assessment';
+                    return;
+                }
+
+                // Render metrics
+                document.getElementById('studentNavName').innerText = `${data.profile.first_name}`;
+                document.getElementById('printStudentName').innerText = `${data.profile.first_name} ${data.profile.last_name}`;
+                document.getElementById('printCollege').innerText = `${data.profile.college_name}`;
+                document.getElementById('printCareer').innerText = `${data.profile.career}`;
+                
+                document.getElementById('levelBadge').innerText = data.profile.level;
+                document.getElementById('quizScoreText').innerText = `${Math.round(data.quiz_metrics.score)}%`;
+                
+                document.getElementById('gpaProjected').innerText = data.profile.projected_cgpa;
+                document.getElementById('gpaCurrent').innerText = `Current: ${data.profile.cgpa}`;
+                
+                document.getElementById('studyHoursText').innerText = `${data.preferences.daily_study_hours} hrs`;
+
+                document.getElementById('studentCourse').innerText = data.profile.course;
+                document.getElementById('studentDept').innerText = data.profile.department;
+                document.getElementById('studentCareer').innerText = data.profile.career;
+                document.getElementById('studentPace').innerText = data.preferences.learning_speed;
+
+                // Load weak topics badges
+                const weakContainer = document.getElementById('weakAreaList');
+                weakContainer.innerHTML = '';
+                if(data.weak_topics.length === 0) {
+                    weakContainer.innerHTML = '<span class="badge badge-proficient">No Weak Areas Identified! Keep it up.</span>';
+                } else {
+                    data.weak_topics.forEach(topic => {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge badge-needs-review';
+                        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${topic}`;
+                        weakContainer.appendChild(badge);
+                    });
+                }
+
+                // Load Reminders
+                const reminderContainer = document.getElementById('revisionList');
+                reminderContainer.innerHTML = '';
+                if(data.weak_topics.length === 0) {
+                    reminderContainer.innerHTML = `
+                        <div style="background: rgba(16, 185, 129, 0.05); padding: 0.75rem; border-radius: 6px; border-left: 3px solid var(--success);">
+                            <strong>Perfect Progress!</strong> Review concepts daily to maintain your skill level.
+                        </div>
+                    `;
+                } else {
+                    data.weak_topics.slice(0, 2).forEach((topic, idx) => {
+                        const box = document.createElement('div');
+                        box.style.cssText = 'background: rgba(245,158,11,0.05); padding: 0.75rem; border-radius: 6px; border-left: 3px solid var(--warning);';
+                        box.innerHTML = `
+                            <strong>Concept Review:</strong> Refresh your knowledge on <strong>${topic}</strong> before practicing complex tests.
+                        `;
+                        reminderContainer.appendChild(box);
+                    });
+                }
+
+                // AI Insight summaries text
+                const summaryContainer = document.getElementById('aiSummaryContent');
+                const weakText = data.weak_topics.length > 0 ? `the topics <strong>${data.weak_topics.join(', ')}</strong> need immediate foundational revision` : 'you showed remarkable accuracy across all evaluated sections';
+                summaryContainer.innerHTML = `
+                    <p>Based on cognitive self-ratings and actual assessment outputs, you have been categorized at the <strong>${data.profile.level}</strong> level.</p>
+                    <br>
+                    <p><strong>Performance Projections:</strong> With a daily study routine of <strong>${data.preferences.daily_study_hours} hours</strong> and your quiz performance, our predictive model estimates a future CGPA trajectory of <strong>${data.profile.projected_cgpa}</strong> (on a ${data.profile.cgpa_scale}.0 scale).</p>
+                    <br>
+                    <p><strong>Subject Proficiency:</strong> Our diagnostic tests indicate that ${weakText}. For your goal to become a <strong>${data.profile.career}</strong>, we recommend spending an extra 25 minutes daily on code logic problems.</p>
+                `;
+
+                // Render Recommendation cards
+                const recsContainer = document.getElementById('recommendationCards');
+                recsContainer.innerHTML = '';
+                
+                data.recommendations.forEach(rec => {
+                    const card = document.createElement('div');
+                    card.className = 'rec-card';
+                    
+                    const badgeClass = rec.status === 'Needs Review' ? 'badge-needs-review' : 'badge-proficient';
+                    
+                    let videoItems = '';
+                    rec.videos.forEach(v => {
+                        videoItems += `
+                            <a href="${v.url}" target="_blank" class="resource-item">
+                                <span><i class="fa-solid fa-circle-play" style="color: var(--accent); margin-right: 0.5rem;"></i> ${v.title}</span>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">${v.source}</span>
+                            </a>
+                        `;
+                    });
+
+                    let pdfItems = '';
+                    rec.pdfs.forEach(p => {
+                        pdfItems += `
+                            <a href="${p.url}" target="_blank" class="resource-item">
+                                <span><i class="fa-solid fa-file-pdf" style="color: var(--secondary); margin-right: 0.5rem;"></i> ${p.title}</span>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">${p.source}</span>
+                            </a>
+                        `;
+                    });
+
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                            <h4 style="font-size: 1.15rem; margin-bottom: 0;">${rec.topic}</h4>
+                            <span class="badge ${badgeClass}">${rec.status}</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Recommended: ${rec.recommended_level} materials</p>
+                        
+                        <div class="resource-list">
+                            <h5 style="font-size:0.8rem; margin-bottom:0.25rem; text-transform:uppercase; color:var(--text-muted);">Lectures</h5>
+                            ${videoItems}
+                            
+                            <h5 style="font-size:0.8rem; margin-top: 0.5rem; margin-bottom:0.25rem; text-transform:uppercase; color:var(--text-muted);">Study Material</h5>
+                            ${pdfItems}
+                            
+                            <h5 style="font-size:0.8rem; margin-top: 0.5rem; margin-bottom:0.25rem; text-transform:uppercase; color:var(--text-muted);">Practice Focus</h5>
+                            <div style="background:rgba(255,255,255,0.02); padding: 0.6rem; border-radius:6px; border:1px dashed rgba(255,255,255,0.08); font-size:0.85rem;">
+                                ${rec.practice}
+                            </div>
+                        </div>
+                    `;
+                    recsContainer.appendChild(card);
+                });
+
+                // Chart 1: Skill Radar Chart
+                // Calculate actual performance values for topics
+                const quizScoreVal = data.quiz_metrics.score / 20; // Scale 100% to 5.0 scale
+                const progQuiz = ( (data.weak_topics.includes("Java basics") ? 0:1) + (data.weak_topics.includes("Loops") ? 0:1) + (data.weak_topics.includes("Arrays") ? 0:1) + (data.weak_topics.includes("OOP concepts") ? 0:1) ) / 4 * 5;
+                const aptQuiz = ( (data.weak_topics.includes("Quantitative Aptitude") ? 0:1) + (data.weak_topics.includes("Logical reasoning") ? 0:1) ) / 2 * 5;
+                
+                renderRadarChart(data.skills_rated, progQuiz, aptQuiz);
+
+                // Chart 2: Behavior Bar Chart
+                renderBarChart(data.behaviors);
+
+            } catch (err) {
+                console.error("Dashboard render failed: ", err);
+            }
+        }
+
+        function renderRadarChart(selfSkills, progQuiz, aptQuiz) {
+            const ctx = document.getElementById('skillRadarChart').getContext('2d');
+            
+            if(radarChart) radarChart.destroy();
+            
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Programming', 'Aptitude', 'Mathematics', 'Communication'],
+                    datasets: [
+                        {
+                            label: 'Your Self-Rating',
+                            data: [selfSkills.programming, selfSkills.aptitude, selfSkills.mathematics, selfSkills.communication],
+                            backgroundColor: 'rgba(147, 51, 234, 0.2)',
+                            borderColor: 'rgba(147, 51, 234, 0.8)',
+                            pointBackgroundColor: 'rgba(147, 51, 234, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Quiz Diagnostics',
+                            data: [progQuiz, aptQuiz, selfSkills.mathematics, selfSkills.communication], // Fallback math & comms
+                            backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                            borderColor: 'rgba(6, 182, 212, 0.8)',
+                            pointBackgroundColor: 'rgba(6, 182, 212, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            pointLabels: { color: 'rgba(255, 255, 255, 0.7)', font: { size: 11 } },
+                            ticks: { display: false, max: 5, min: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+        }
+
+        function renderBarChart(behaviors) {
+            const ctx = document.getElementById('behaviorBarChart').getContext('2d');
+            
+            if(barChart) barChart.destroy();
+
+            const labels = behaviors.map(b => b.topic);
+            const times = behaviors.map(b => b.time_spent);
+            const rates = behaviors.map(b => b.completion_rate);
+
+            barChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Study Time (Minutes)',
+                            data: times,
+                            backgroundColor: 'rgba(79, 70, 229, 0.65)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Topic Completion (%)',
+                            data: rates,
+                            backgroundColor: 'rgba(16, 185, 129, 0.65)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y1',
+                            type: 'line'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 9 } },
+                            grid: { color: 'rgba(255,255,255,0.03)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: 'rgba(255,255,255,0.6)' },
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            title: { display: true, text: 'Minutes Spent', color: 'rgba(255,255,255,0.6)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: 'rgba(255,255,255,0.6)' },
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Completion Rate %', color: 'rgba(255,255,255,0.6)' },
+                            max: 100,
+                            min: 0
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+        }
+
+        // Stopwatch Toggle Controller
+        function toggleStopwatch() {
+            const btn = document.getElementById('stopwatchBtn');
+            const select = document.getElementById('pomoTopic');
+
+            if(stopwatchRunning) {
+                // Pause/Stop
+                clearInterval(stopwatchInterval);
+                stopwatchRunning = false;
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> Resume Study';
+                btn.className = 'btn btn-primary';
+                
+                // Save time to backend
+                saveStudyTime(select.value, Math.ceil(elapsedSeconds / 60));
+            } else {
+                // Start
+                stopwatchRunning = true;
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause & Log';
+                btn.className = 'btn btn-secondary';
+                
+                stopwatchInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    const mins = Math.floor(elapsedSeconds / 60);
+                    const secs = elapsedSeconds % 60;
+                    document.getElementById('stopwatchDisplay').innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                }, 1000);
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            elapsedSeconds = 0;
+            stopwatchRunning = false;
+            document.getElementById('stopwatchDisplay').innerText = '00:00';
+            const btn = document.getElementById('stopwatchBtn');
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Start Study';
+            btn.className = 'btn btn-primary';
+        }
+
+        async function saveStudyTime(topic, minutes) {
+            if(minutes <= 0) return;
+            try {
+                const response = await fetch('/api/track/behavior', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        topic: topic,
+                        minutes_spent: minutes,
+                        completion_delta: minutes * 2.0 // Increment completion rate proportional to time
+                    })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    console.log(`Saved ${minutes} minutes of study for ${topic}`);
+                    fetchStats(); // Reload charts
+                }
+            } catch(e) {
+                console.error("Failed to log study minutes: ", e);
+            }
+        }
+
+        // Chatbot widgets toggles
+        function toggleChatWindow() {
+            document.getElementById('chatbotWidget').classList.toggle('open');
+        }
+
+        function handleChatEnter(event) {
+            if(event.key === "Enter") {
+                sendChatMsg();
+            }
+        }
+
+        async function sendChatMsg() {
+            const input = document.getElementById('chatbotInput');
+            const q = input.value.trim();
+            if(!q) return;
+
+            input.value = '';
+
+            const container = document.getElementById('chatbotMsgs');
+            
+            // Append User message
+            const userBox = document.createElement('div');
+            userBox.className = 'chat-msg chat-msg-user';
+            userBox.innerText = q;
+            container.appendChild(userBox);
+            
+            // Auto scroll
+            container.scrollTop = container.scrollHeight;
+
+            // Load a fake typing indicator
+            const typing = document.createElement('div');
+            typing.className = 'chat-msg chat-msg-ai';
+            typing.innerText = 'AI Thinking...';
+            container.appendChild(typing);
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ question: q })
+                });
+                const data = await response.json();
+                
+                typing.remove(); // Remove typing block
+
+                const aiBox = document.createElement('div');
+                aiBox.className = 'chat-msg chat-msg-ai';
+                
+                // Parse a tiny subset of markdown for visual clarity in chat
+                let parsedHTML = data.reply
+                    .replace(/### (.*)/g, '<h3 style="color:var(--accent); font-size:1rem; margin-top:0.5rem;">$1</h3>')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/```python([^`]+)```/g, '<pre><code>$1</code></pre>')
+                    .replace(/```sql([^`]+)```/g, '<pre><code>$1</code></pre>')
+                    .replace(/```java([^`]+)```/g, '<pre><code>$1</code></pre>');
+                    
+                aiBox.innerHTML = parsedHTML;
+                container.appendChild(aiBox);
+                
+                // Trigger a stats fetch since checking chatbot on weak areas logs study minutes
+                fetchStats();
+
+            } catch(e) {
+                typing.innerText = "Error contacting study assistant.";
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>

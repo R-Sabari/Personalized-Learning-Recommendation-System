@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initial Assessment - Learning Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.9);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .loader-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> learning.ai
+            </div>
+            <div class="nav-menu">
+                <span style="color: var(--text-muted);">Student Assessment Portal</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container quiz-wrapper">
+        <div class="glass-card">
+            
+            <div class="quiz-header">
+                <div>
+                    <h2 id="sectionTitle">Programming Core</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;" id="questionNumber">Question 1 of 6</p>
+                </div>
+                <div class="quiz-timer" id="timerBox">
+                    <i class="fa-solid fa-clock"></i> <span id="timerText">05:00</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+
+            <!-- Quiz form -->
+            <form id="quizForm">
+
+                <!-- Q1: Java basics -->
+                <div class="question-card active" id="qcard1">
+                    <div class="question-title">
+                        Which of the following is <strong>NOT</strong> a primitive data type in Java?
+                    </div>
+                    <div class="options-list">
+                        <label class="option-item" onclick="selectOption(this, 'q1', 'A')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">int</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q1', 'B')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">boolean</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q1', 'C')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">String</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q1', 'D')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">char</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q2: Loops -->
+                <div class="question-card" id="qcard2">
+                    <div class="question-title">
+                        What is the output of the following Java code snippet?
+                        <pre style="background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.9rem; margin-top: 0.75rem; color: #a5f3fc;">
+for (int i = 0; i < 3; i++) {
+    if (i == 1) continue;
+    System.out.print(i);
+}</pre>
+                    </div>
+                    <div class="options-list">
+                        <label class="option-item" onclick="selectOption(this, 'q2', 'A')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">012</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q2', 'B')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">02</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q2', 'C')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">12</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q2', 'D')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">01</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q3: Arrays -->
+                <div class="question-card" id="qcard3">
+                    <div class="question-title">
+                        How is the third element of a declared array named <code>arr</code> accessed?
+                    </div>
+                    <div class="options-list">
+                        <label class="option-item" onclick="selectOption(this, 'q3', 'A')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">arr(2)</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q3', 'B')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">arr[3]</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q3', 'C')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">arr[2]</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q3', 'D')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">arr.get(3)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q4: OOP concepts -->
+                <div class="question-card" id="qcard4">
+                    <div class="question-title">
+                        Which Object-Oriented Programming (OOP) pillar is achieved primarily using <strong>Abstract Classes</strong> and <strong>Interfaces</strong>?
+                    </div>
+                    <div class="options-list">
+                        <label class="option-item" onclick="selectOption(this, 'q4', 'A')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Encapsulation</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q4', 'B')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Inheritance</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q4', 'C')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Polymorphism</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q4', 'D')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Abstraction</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q5: Quantitative Aptitude -->
+                <div class="question-card" id="qcard5">
+                    <div class="question-title">
+                        <strong>[Aptitude]</strong> A train 120 meters long passes an electric pole in 6 seconds. What is the speed of the train in km/h?
+                    </div>
+                    <div class="options-list">
+                        <label class="option-item" onclick="selectOption(this, 'q5', 'A')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">72 km/h</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q5', 'B')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">20 km/h</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q5', 'C')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">50 km/h</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q5', 'D')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">80 km/h</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q6: Logical reasoning -->
+                <div class="question-card" id="qcard6">
+                    <div class="question-title">
+                        <strong>[Logical Reasoning]</strong> If P is the brother of Q, and Q is the sister of R, how is P related to R?
+                    </div>
+                    <div class="options-list">
+                        <label class="option-item" onclick="selectOption(this, 'q6', 'A')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Brother</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q6', 'B')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Sister</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q6', 'C')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Uncle</span>
+                        </label>
+                        <label class="option-item" onclick="selectOption(this, 'q6', 'D')">
+                            <span class="option-radio"></span>
+                            <span class="option-text">Father</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" onclick="navigateQuestion(-1)" style="visibility: hidden;">
+                        <i class="fa-solid fa-chevron-left"></i> Previous
+                    </button>
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="navigateQuestion(1)">
+                        Next Question <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Processing overlay loader -->
+    <div class="loader-overlay" id="loaderOverlay">
+        <div class="spinner"></div>
+        <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">AI Skill Evaluation</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; text-align: center; max-width: 300px;">Analyzing scores, identifying weak topics, and building recommendations...</p>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 6;
+        const answers = {};
+        
+        // Timer configuration (5 minutes = 300 seconds)
+        let totalSeconds = 300;
+        const timerBox = document.getElementById('timerText');
+        
+        const timerInterval = setInterval(() => {
+            totalSeconds--;
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            timerBox.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if(totalSeconds <= 30) {
+                document.getElementById('timerBox').style.background = 'rgba(239, 68, 68, 0.15)';
+                document.getElementById('timerBox').style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                document.getElementById('timerBox').style.color = 'var(--danger)';
+            }
+            
+            if(totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Submitting your quiz automatically.");
+                submitQuiz();
+            }
+        }, 1000);
+
+        // Update progress bar at startup
+        updateProgress();
+
+        function selectOption(label, questionId, value) {
+            // Uncheck other options in this cards list
+            const currentCard = document.getElementById(`qcard${currentQuestion}`);
+            currentCard.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+            
+            // Highlight selected card
+            label.classList.add('selected');
+            
+            // Record answer
+            answers[questionId] = value;
+        }
+
+        function navigateQuestion(direction) {
+            const nextIdx = currentQuestion + direction;
+            if(nextIdx < 1 || nextIdx > totalQuestions) return;
+
+            // Hide current card
+            document.getElementById(`qcard${currentQuestion}`).classList.remove('active');
+            
+            // Show next card
+            document.getElementById(`qcard${nextIdx}`).classList.add('active');
+            
+            currentQuestion = nextIdx;
+            
+            // Update labels
+            document.getElementById('questionNumber').innerText = `Question ${currentQuestion} of ${totalQuestions}`;
+            document.getElementById('sectionTitle').innerText = currentQuestion <= 4 ? "Programming Core" : "Aptitude & Logic";
+
+            // Update button visibilities
+            document.getElementById('prevBtn').style.visibility = currentQuestion === 1 ? 'hidden' : 'visible';
+            
+            if(currentQuestion === totalQuestions) {
+                document.getElementById('nextBtn').innerHTML = 'Submit Assessment <i class="fa-solid fa-circle-check"></i>';
+                document.getElementById('nextBtn').onclick = submitQuiz;
+            } else {
+                document.getElementById('nextBtn').innerHTML = 'Next Question <i class="fa-solid fa-chevron-right"></i>';
+                document.getElementById('nextBtn').onclick = () => navigateQuestion(1);
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const percentage = ((currentQuestion - 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+        }
+
+        async function submitQuiz() {
+            clearInterval(timerInterval);
+            
+            // Verify if all questions answered
+            const unanswered = [];
+            for(let i = 1; i <= totalQuestions; i++) {
+                if(!answers[`q${i}`]) {
+                    unanswered.push(i);
+                }
+            }
+
+            if(unanswered.length > 0 && totalSeconds > 0) {
+                const proceed = confirm(`You have left questions: ${unanswered.join(', ')} unanswered. Do you want to submit anyway?`);
+                if(!proceed) {
+                    // Resume timer
+                    return;
+                }
+            }
+
+            // Show AI analyzer screen
+            document.getElementById('loaderOverlay').classList.add('active');
+
+            const timeSpent = 300 - totalSeconds;
+
+            try {
+                const response = await fetch('/api/assessment/submit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        answers: answers,
+                        time_taken: timeSpent
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if(data.success) {
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1200); // Small timer delay to appreciate the loading effect
+                } else {
+                    alert("Submission failed: " + data.message);
+                    document.getElementById('loaderOverlay').classList.remove('active');
+                }
+            } catch(err) {
+                alert("Network error submitting quiz.");
+                document.getElementById('loaderOverlay').classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
